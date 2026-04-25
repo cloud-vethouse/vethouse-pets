@@ -15,7 +15,7 @@ app = FastAPI(
 
 # Endpoints para dueños
 # Post un dueño
-@app.post("/duenos/", response_model=schemas.Dueno, status_code=status.HTTP_201_CREATED, tags=["Dueños"])
+@app.post("/api/v1/duenos/", response_model=schemas.Dueno, status_code=status.HTTP_201_CREATED, tags=["Dueños"])
 def crear_dueno(dueno: schemas.DuenoCreate, db: Session = Depends(get_db)):
     db_dueno = models.Dueno(
         nombre=dueno.nombre, 
@@ -28,12 +28,12 @@ def crear_dueno(dueno: schemas.DuenoCreate, db: Session = Depends(get_db)):
     return db_dueno
 
 # Get todos los dueños
-@app.get("/duenos/", response_model=List[schemas.Dueno], tags=["Dueños"])
+@app.get("api/v1/duenos/", response_model=List[schemas.Dueno], tags=["Dueños"])
 def listar_duenos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(models.Dueno).offset(skip).limit(limit).all()
 
 # Get dueño por id
-@app.get("/duenos/{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
+@app.get("api/v1/duenos/{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
 def obtener_dueno(dueno_id: int, db: Session = Depends(get_db)):
     db_dueno = db.query(models.Dueno).filter(models.Dueno.id == dueno_id).first()
     if not db_dueno:
@@ -41,7 +41,7 @@ def obtener_dueno(dueno_id: int, db: Session = Depends(get_db)):
     return db_dueno
 
 # Put (actualizar) un dueño
-@app.put("/duenos/{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
+@app.put("api/v1/duenos/{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
 def actualizar_dueno(dueno_id: int, dueno_update: schemas.DuenoCreate, db: Session = Depends(get_db)):
     db_dueno = db.query(models.Dueno).filter(models.Dueno.id == dueno_id).first()
     if not db_dueno:
@@ -56,7 +56,7 @@ def actualizar_dueno(dueno_id: int, dueno_update: schemas.DuenoCreate, db: Sessi
     return db_dueno
 
 # Delete un dueño
-@app.delete("/duenos/{dueno_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Dueños"])
+@app.delete("/api/v1/duenos/{dueno_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Dueños"])
 def eliminar_dueno(dueno_id: int, db: Session = Depends(get_db)):
     db_dueno = db.query(models.Dueno).filter(models.Dueno.id == dueno_id).first()
     if not db_dueno:
@@ -69,7 +69,7 @@ def eliminar_dueno(dueno_id: int, db: Session = Depends(get_db)):
 
 # --- ENDPOINTS PARA MASCOTAS ---
 # Post mascota 
-@app.post("/mascotas/", response_model=schemas.Mascota, status_code=status.HTTP_201_CREATED, tags=["Mascotas"])
+@app.post("/api/v1/mascotas/", response_model=schemas.Mascota, status_code=status.HTTP_201_CREATED, tags=["Mascotas"])
 def crear_mascota(mascota: schemas.MascotaCreate, db: Session = Depends(get_db)):
     dueno_existe = db.query(models.Dueno).filter(models.Dueno.id == mascota.id_dueno).first()
     if not dueno_existe:
@@ -87,12 +87,12 @@ def crear_mascota(mascota: schemas.MascotaCreate, db: Session = Depends(get_db))
     return db_mascota
 
 # Get todas las mascotas
-@app.get("/mascotas/", response_model=List[schemas.Mascota], tags=["Mascotas"])
+@app.get("/api/v1/mascotas/", response_model=List[schemas.Mascota], tags=["Mascotas"])
 def listar_mascotas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(models.Mascota).offset(skip).limit(limit).all()
 
 # Get mascota por id
-@app.get("/mascotas/{mascota_id}", response_model=schemas.Mascota, tags=["Mascotas"])
+@app.get("/api/v1/mascotas/{mascota_id}", response_model=schemas.Mascota, tags=["Mascotas"])
 def obtener_mascota(mascota_id: int, db: Session = Depends(get_db)):
     db_mascota = db.query(models.Mascota).filter(models.Mascota.id == mascota_id).first()
     if db_mascota is None:
@@ -100,7 +100,7 @@ def obtener_mascota(mascota_id: int, db: Session = Depends(get_db)):
     return db_mascota
 
 # Put (actualizar) mascota
-@app.put("/mascotas/{mascota_id}", response_model=schemas.Mascota, tags=["Mascotas"])
+@app.put("/api/v1/mascotas/{mascota_id}", response_model=schemas.Mascota, tags=["Mascotas"])
 def actualizar_mascota(mascota_id: int, mascota_update: schemas.MascotaCreate, db: Session = Depends(get_db)):
     db_mascota = db.query(models.Mascota).filter(models.Mascota.id == mascota_id).first()
     if not db_mascota:
@@ -121,7 +121,7 @@ def actualizar_mascota(mascota_id: int, mascota_update: schemas.MascotaCreate, d
     return db_mascota
 
 # Delete mascota
-@app.delete("/mascotas/{mascota_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Mascotas"])
+@app.delete("/api/v1/mascotas/{mascota_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Mascotas"])
 def eliminar_mascota(mascota_id: int, db: Session = Depends(get_db)):
     db_mascota = db.query(models.Mascota).filter(models.Mascota.id == mascota_id).first()
     if not db_mascota:
@@ -132,7 +132,7 @@ def eliminar_mascota(mascota_id: int, db: Session = Depends(get_db)):
     return None
 
 # Get todas las mascotas de un dueño específico
-@app.get("/duenos/{dueno_id}/mascotas", response_model=List[schemas.Mascota], tags=["Dueños"])
+@app.get("/api/v1/duenos/{dueno_id}/mascotas", response_model=List[schemas.Mascota], tags=["Dueños"])
 def listar_mascotas_por_dueno(dueno_id: int, db: Session = Depends(get_db)):
     dueno = db.query(models.Dueno).filter(models.Dueno.id == dueno_id).first()
     if not dueno:
