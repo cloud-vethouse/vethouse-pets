@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -12,6 +13,25 @@ app = FastAPI(
     description="Microservicio encargado del registro de Dueños y Mascotas",
     version="1.0.0"
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+def normalize_pagination(skip: int, limit: int, max_limit: int = 200):
+    safe_skip = max(skip, 0)
+    safe_limit = min(max(limit, 1), max_limit)
+    return safe_skip, safe_limit
 
 # Endpoints para dueños
 # Post un dueño
@@ -28,12 +48,18 @@ def crear_dueno(dueno: schemas.DuenoCreate, db: Session = Depends(get_db)):
     return db_dueno
 
 # Get todos los dueños
-@app.get("api/v1/duenos/", response_model=List[schemas.Dueno], tags=["Dueños"])
+@app.get("/api/v1/duenos/", response_model=List[schemas.DuenoListItem], tags=["Dueños"])
 def listar_duenos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(models.Dueno).offset(skip).limit(limit).all()
+    safe_skip, safe_limit = normalize_pagination(skip, limit)
+    return db.query(models.Dueno).offset(safe_skip).limit(safe_limit).all()
+
+
+@app.get("/api/v1/duenos/count", tags=["Dueños"])
+def contar_duenos(db: Session = Depends(get_db)):
+    return {"total": db.query(models.Dueno).count()}
 
 # Get dueño por id
-@app.get("api/v1/duenos/{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
+@app.get("/api/v1/duenos/{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
 def obtener_dueno(dueno_id: int, db: Session = Depends(get_db)):
     db_dueno = db.query(models.Dueno).filter(models.Dueno.id == dueno_id).first()
     if not db_dueno:
@@ -41,7 +67,7 @@ def obtener_dueno(dueno_id: int, db: Session = Depends(get_db)):
     return db_dueno
 
 # Put (actualizar) un dueño
-@app.put("api/v1/duenos/{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
+@app.put("/api/v1/duenos/{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
 def actualizar_dueno(dueno_id: int, dueno_update: schemas.DuenoCreate, db: Session = Depends(get_db)):
     db_dueno = db.query(models.Dueno).filter(models.Dueno.id == dueno_id).first()
     if not db_dueno:
@@ -79,6 +105,11 @@ def crear_mascota(mascota: schemas.MascotaCreate, db: Session = Depends(get_db))
         nombre=mascota.nombre,
         especie=mascota.especie,
         raza=mascota.raza,
+        sexo=mascota.sexo,
+        fecha_nacimiento=mascota.fecha_nacimiento,
+        peso=mascota.peso,
+        esterilizado=mascota.esterilizado,
+        observaciones_generales=mascota.observaciones_generales,
         id_dueno=mascota.id_dueno
     )
     db.add(db_mascota)
@@ -89,7 +120,13 @@ def crear_mascota(mascota: schemas.MascotaCreate, db: Session = Depends(get_db))
 # Get todas las mascotas
 @app.get("/api/v1/mascotas/", response_model=List[schemas.Mascota], tags=["Mascotas"])
 def listar_mascotas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(models.Mascota).offset(skip).limit(limit).all()
+    safe_skip, safe_limit = normalize_pagination(skip, limit)
+    return db.query(models.Mascota).offset(safe_skip).limit(safe_limit).all()
+
+
+@app.get("/api/v1/mascotas/count", tags=["Mascotas"])
+def contar_mascotas(db: Session = Depends(get_db)):
+    return {"total": db.query(models.Mascota).count()}
 
 # Get mascota por id
 @app.get("/api/v1/mascotas/{mascota_id}", response_model=schemas.Mascota, tags=["Mascotas"])
@@ -114,6 +151,11 @@ def actualizar_mascota(mascota_id: int, mascota_update: schemas.MascotaCreate, d
     db_mascota.nombre = mascota_update.nombre
     db_mascota.especie = mascota_update.especie
     db_mascota.raza = mascota_update.raza
+    db_mascota.sexo = mascota_update.sexo
+    db_mascota.fecha_nacimiento = mascota_update.fecha_nacimiento
+    db_mascota.peso = mascota_update.peso
+    db_mascota.esterilizado = mascota_update.esterilizado
+    db_mascota.observaciones_generales = mascota_update.observaciones_generales
     db_mascota.id_dueno = mascota_update.id_dueno
     
     db.commit()

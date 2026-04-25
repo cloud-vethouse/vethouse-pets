@@ -39,3 +39,10 @@ class Dueno(DuenoBase):
 
     class Config:
         from_attributes = True
+
+
+class DuenoListItem(DuenoBase):
+    id: int
+
+    class Config:
+        from_attributes = True
