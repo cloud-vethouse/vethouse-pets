@@ -37,6 +37,9 @@ def normalize_pagination(skip: int, limit: int, max_limit: int = 200):
 # Post un dueño
 @app.post("/api/v1/duenos/", response_model=schemas.Dueno, status_code=status.HTTP_201_CREATED, tags=["Dueños"])
 def crear_dueno(dueno: schemas.DuenoCreate, db: Session = Depends(get_db)):
+    email_existe = db.query(models.Dueno).filter(models.Dueno.correo == dueno.correo).first()
+    if email_existe:
+        raise HTTPException(status_code=400, detail="El correo ya está registrado")
     db_dueno = models.Dueno(
         nombre=dueno.nombre, 
         telefono=dueno.telefono, 
