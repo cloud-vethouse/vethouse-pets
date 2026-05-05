@@ -26,7 +26,8 @@ class Mascota(MascotaBase):
 
 # --- ESQUEMAS DE DUEÑOS ---
 class DuenoBase(BaseModel):
-    nombre: str
+    dni: str
+    nombres: str
     telefono: str
     correo: EmailStr
 

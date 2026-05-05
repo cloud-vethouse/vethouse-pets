@@ -11,8 +11,9 @@ class SexoEnum(str, enum.Enum):
 class Dueno(Base):
     __tablename__ = "duenos"
     id = Column(Integer, primary_key=True, index=True)
-    nombre = Column(String(100))
-    telefono = Column(String(20))
+    dni = Column(String(8), unique=True, nullable=False)
+    nombres = Column(String(100))
+    telefono = Column(String(9), unique=True)
     correo = Column(String(100), unique=True)
     mascotas = relationship("Mascota", back_populates="propietario")
 

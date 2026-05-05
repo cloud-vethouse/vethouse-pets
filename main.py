@@ -40,8 +40,13 @@ def crear_dueno(dueno: schemas.DuenoCreate, db: Session = Depends(get_db)):
     email_existe = db.query(models.Dueno).filter(models.Dueno.correo == dueno.correo).first()
     if email_existe:
         raise HTTPException(status_code=400, detail="El correo ya está registrado")
+    dni_existe = db.query(models.Dueno).filter(models.Dueno.dni == dueno.dni).first()
+    if dni_existe:
+        raise HTTPException(status_code=400, detail="El DNI ya está registrado")
+    
     db_dueno = models.Dueno(
-        nombre=dueno.nombre, 
+        dni = dueno.dni,
+        nombres=dueno.nombres, 
         telefono=dueno.telefono, 
         correo=dueno.correo
     )
@@ -76,9 +81,10 @@ def actualizar_dueno(dueno_id: int, dueno_update: schemas.DuenoCreate, db: Sessi
     if not db_dueno:
         raise HTTPException(status_code=404, detail="Dueño no encontrado")
     
-    db_dueno.nombre = dueno_update.nombre
+    db_dueno.nombres = dueno_update.nombres
     db_dueno.telefono = dueno_update.telefono
     db_dueno.correo = dueno_update.correo
+    db_dueno.dni = dueno_update.dni
     
     db.commit()
     db.refresh(db_dueno)
@@ -121,7 +127,7 @@ def crear_mascota(mascota: schemas.MascotaCreate, db: Session = Depends(get_db))
     return db_mascota
 
 # Get todas las mascotas
-@app.get("/api/v1/mascotas/", response_model=List[schemas.Mascota], tags=["Mascotas"])
+@app.get("/api/v1/mascotas", response_model=List[schemas.Mascota], tags=["Mascotas"])
 def listar_mascotas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     safe_skip, safe_limit = normalize_pagination(skip, limit)
     return db.query(models.Mascota).offset(safe_skip).limit(safe_limit).all()
