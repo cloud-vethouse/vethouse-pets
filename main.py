@@ -35,7 +35,7 @@ def normalize_pagination(skip: int, limit: int, max_limit: int = 200):
 
 # Endpoints para dueños
 # Post un dueño
-@app.post("/api/v1/duenos/", response_model=schemas.Dueno, status_code=status.HTTP_201_CREATED, tags=["Dueños"])
+@app.post("/api/v1/duenos", response_model=schemas.Dueno, status_code=status.HTTP_201_CREATED, tags=["Dueños"])
 def crear_dueno(dueno: schemas.DuenoCreate, db: Session = Depends(get_db)):
     email_existe = db.query(models.Dueno).filter(models.Dueno.correo == dueno.correo).first()
     if email_existe:
@@ -56,7 +56,7 @@ def crear_dueno(dueno: schemas.DuenoCreate, db: Session = Depends(get_db)):
     return db_dueno
 
 # Get todos los dueños
-@app.get("/api/v1/duenos/", response_model=List[schemas.DuenoListItem], tags=["Dueños"])
+@app.get("/api/v1/duenos", response_model=List[schemas.DuenoListItem], tags=["Dueños"])
 def listar_duenos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     safe_skip, safe_limit = normalize_pagination(skip, limit)
     return db.query(models.Dueno).offset(safe_skip).limit(safe_limit).all()
@@ -75,7 +75,7 @@ def obtener_dueno(dueno_id: int, db: Session = Depends(get_db)):
     return db_dueno
 
 # Put (actualizar) un dueño
-@app.put("/api/v1/duenos/{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
+@app.put("/api/v1/duenos{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
 def actualizar_dueno(dueno_id: int, dueno_update: schemas.DuenoCreate, db: Session = Depends(get_db)):
     db_dueno = db.query(models.Dueno).filter(models.Dueno.id == dueno_id).first()
     if not db_dueno:
@@ -104,7 +104,7 @@ def eliminar_dueno(dueno_id: int, db: Session = Depends(get_db)):
 
 # --- ENDPOINTS PARA MASCOTAS ---
 # Post mascota 
-@app.post("/api/v1/mascotas/", response_model=schemas.Mascota, status_code=status.HTTP_201_CREATED, tags=["Mascotas"])
+@app.post("/api/v1/mascotas", response_model=schemas.Mascota, status_code=status.HTTP_201_CREATED, tags=["Mascotas"])
 def crear_mascota(mascota: schemas.MascotaCreate, db: Session = Depends(get_db)):
     dueno_existe = db.query(models.Dueno).filter(models.Dueno.id == mascota.id_dueno).first()
     if not dueno_existe:
