@@ -20,6 +20,7 @@ class MascotaCreate(MascotaBase):
 
 class Mascota(MascotaBase):
     id: int
+    id_dueno: int
 
     class Config:
         from_attributes = True 
