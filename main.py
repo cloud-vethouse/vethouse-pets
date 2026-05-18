@@ -28,7 +28,7 @@ app.add_middleware(
 )
 
 
-def normalize_pagination(skip: int, limit: int, max_limit: int = 200):
+def normalize_pagination(skip: int, limit: int, max_limit: int = 1000): # Aumenta el límite
     safe_skip = max(skip, 0)
     safe_limit = min(max(limit, 1), max_limit)
     return safe_skip, safe_limit
@@ -75,7 +75,7 @@ def obtener_dueno(dueno_id: int, db: Session = Depends(get_db)):
     return db_dueno
 
 # Put (actualizar) un dueño
-@app.put("/api/v1/duenos{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
+@app.put("/api/v1/duenos/{dueno_id}", response_model=schemas.Dueno, tags=["Dueños"])
 def actualizar_dueno(dueno_id: int, dueno_update: schemas.DuenoCreate, db: Session = Depends(get_db)):
     db_dueno = db.query(models.Dueno).filter(models.Dueno.id == dueno_id).first()
     if not db_dueno:
