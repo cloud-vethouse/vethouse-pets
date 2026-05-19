@@ -14,13 +14,14 @@ class MascotaBase(BaseModel):
     peso: float 
     esterilizado: bool
     observaciones_generales: Optional[str] = None
+    id_dueno: Optional[int] = None
 
 class MascotaCreate(MascotaBase):
     id_dueno: int 
 
 class Mascota(MascotaBase):
     id: int
-    id_dueno: int
+    id_dueno: Optional[int] = None
 
     class Config:
         from_attributes = True 
